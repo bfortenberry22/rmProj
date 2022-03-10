@@ -1,7 +1,7 @@
 // TODO: Include packages needed for this application
 const fs = require('fs');
 const inquirer = require("inquirer");
-
+const generateMarkdown = require('./utils/generateMarkdown');
 
 // TODO: Create an array of questions for user input
 const questions = () => {
@@ -15,6 +15,19 @@ const questions = () => {
                     return true; 
                 } else {
                     console.log ('Please enter the title of your project!');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: "username",
+            message : 'What is your GitHub username? (Required)',
+            validate: usernameInput => {
+                if(usernameInput){
+                    return true; 
+                } else {
+                    console.log ('Please enter your GitHub username!');
                     return false;
                 }
             }
@@ -47,7 +60,7 @@ const questions = () => {
         },
         {
             type: 'input',
-            name: 'useage', 
+            name: 'usage', 
             message: 'Provide instructions and examples for using your project. (Required)',
             validate: usageInput => {
                 if(usageInput){
@@ -69,6 +82,22 @@ const questions = () => {
 
 // TODO: Create a function to write README file
 // function writeToFile(fileName, data) {}
+const writeReadMe = fileContent => {
+    return new Promise ((resolve, reject)=>{
+        fs.writeFile('./dist/README.md', generateMarkdown(data), err => {
+            if (err){
+                reject(err);
+                return;
+            }
+        
+            resolve({
+                OK: true, 
+                message: 'File Created!'
+            });
+        });
+    });
+};
+
 
 // TODO: Create a function to initialize app
 // function init() {}
@@ -77,6 +106,9 @@ const questions = () => {
 // init();
 
 questions()
-    .then(answers =>
-        console.log (answers));
+    .then(answers=> {
+        return generateMarkdown(answers);
+    })
+    .then(writeReadMe());
+
 
